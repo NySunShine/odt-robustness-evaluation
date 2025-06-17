@@ -9,7 +9,7 @@ import torch.distributed as dist
 
 from loader.datasets import TrainingDataset, TestDataset
 from loader.mixer import (CutMixDataset, StackCutMixDataset,
-                          MixUpDataset, AugMixDataset, PixMixDataset, YocoPixMixDataset)
+                          MixUpDataset, AugMixDataset, PixMixDataset, CutPixDataset)
 
 
 class DataLoader(object):
@@ -54,7 +54,7 @@ class DataLoader(object):
             "mixup": MixUpDataset,
             "augmix": AugMixDataset,
             "pixmix": PixMixDataset,
-            "yocopix": YocoPixMixDataset,
+            "yocopix": CutPixDataset,
         }
         dataset = loader_dict[self.mix](
             paths, self.image_size, self.dim, **self.args_training

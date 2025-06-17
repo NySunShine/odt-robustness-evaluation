@@ -215,75 +215,41 @@ class PixMixDataset(TrainingDataset):
         return torch.from_numpy(image_augmented).float(), label
 
 
-# class YocoPixMixDataset(PixMixDataset):
-#     def _pixmix(self, volume, mixing_volume):
-#         if np.random.rand() > 0.5:
-#             mixed = self.aug_fn(volume).clip(0, 1)
-#         else:
-#             mixed = volume
-
-#         for _ in range(np.random.randint(1, 4)):
-#             if np.random.rand() > 0.5:
-#                 aug_volume = self.aug_fn(volume)
-#             else:
-#                 aug_volume = mixing_volume
-#             mixed_op = np.random.choice(mixings)
-#             mixed = mixed_op(mixed, aug_volume, 3)
-#             mixed = mixed.clip(0, 1)
-
-#         if np.random.rand() > 0.5:
-#             return mixed
-        
-#         cut_index = np.random.randint(0, 7)
-#         z, y, x = self.image_size
-#         propotion = 0.5
-#         match cut_index:
-#             case 0:
-#                 mixed[:int(z*propotion)] = volume[:int(z*propotion)]
-#             case 1:
-#                 mixed[int(z*propotion):] = volume[int(z*propotion):]
-#             case 2:
-#                 mixed[:, :int(y*propotion)] = volume[:, :int(y*propotion)]
-#             case 3:
-#                 mixed[:, int(y*propotion):] = volume[:, int(y*propotion):]
-#             case 4:
-#                 mixed[:, :, :int(x*propotion)] = volume[:, :, :int(x*propotion)]
-#             case 5:
-#                 mixed[:, :, int(x*propotion):] = volume[:, :, int(x*propotion):]
-#         return mixed
-    
-class YocoPixMixDataset(PixMixDataset):
+class CutPixDataset(PixMixDataset):
     def _pixmix(self, volume, mixing_volume):
-        # if np.random.rand() > 0.5:
-        #     mixed = self.aug_fn(volume).clip(0, 1)
-        # else:
-        #     mixed = volume
+        if np.random.rand() > 0.5:
+            mixed = self.aug_fn(volume).clip(0, 1)
+        else:
+            mixed = volume
 
-        # for _ in range(np.random.randint(1, 4)):
-        #     if np.random.rand() > 0.5:
-        #         aug_volume = self.aug_fn(volume)
-        #     else:
-        #         aug_volume = mixing_volume
+        for _ in range(np.random.randint(1, 4)):
+            if np.random.rand() > 0.5:
+                aug_volume = self.aug_fn(volume)
+            else:
+                aug_volume = mixing_volume
             mixed_op = np.random.choice(mixings)
             mixed = mixed_op(mixed, aug_volume, 3)
             mixed = mixed.clip(0, 1)
 
-        # if np.random.rand() > 0.5:
-        #     return mixed
-        
-        cut_index = np.random.randint(0, 6)
+        if np.random.rand() > 0.5:
+            return mixed
+
+        cut_index = np.random.randint(0, 7)
         z, y, x = self.image_size
+        propotion = 0.5
         match cut_index:
             case 0:
-                mixed[:z//2] = volume[:z//2]
+                mixed[:int(z*propotion)] = volume[:int(z*propotion)]
             case 1:
-                mixed[z//2:] = volume[z//2:]
+                mixed[int(z*propotion):] = volume[int(z*propotion):]
             case 2:
-                mixed[:, :y//2] = volume[:, :y//2]
+                mixed[:, :int(y*propotion)] = volume[:, :int(y*propotion)]
             case 3:
-                mixed[:, y//2:] = volume[:, y//2:]
+                mixed[:, int(y*propotion):] = volume[:, int(y*propotion):]
             case 4:
-                mixed[:, :, :x//2] = volume[:, :, :x//2]
+                mixed[:, :, :int(x*propotion)] = volume[:,
+                                                        :, :int(x*propotion)]
             case 5:
-                mixed[:, :, x//2:] = volume[:, :, x//2:]
+                mixed[:, :, int(x*propotion):] = volume[:,
+                                                        :, int(x*propotion):]
         return mixed
