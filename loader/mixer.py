@@ -31,7 +31,7 @@ class CutMixDataset(TrainingDataset):
         image_augmented = zoom(self.aug_fn(image_cropped), zoom=(1, 1.5, 1.5))
         if self.dim == 3:
             image_augmented = image_augmented[None]
-        return torch.from_numpy(image_augmented), torch.from_numpy(label_one_hot)
+        return torch.from_numpy(image_augmented).float(), torch.from_numpy(label_one_hot)
 
     def mix(self, img1, img2):
         lam = np.random.uniform(0.5, 1)
