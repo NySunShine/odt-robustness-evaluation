@@ -253,3 +253,40 @@ class CutPixDataset(PixMixDataset):
                 mixed[:, :, int(x*propotion):] = volume[:,
                                                         :, int(x*propotion):]
         return mixed
+
+
+class NoisyMixUpDataset(MixUpDataset):
+    def mix(self, img1: np.ndarray, img2: np.ndarray):
+        mixed, lam = super().mix(img1, img2)
+        mixed = self._noise(mixed)
+        return mixed, lam
+
+    def _noise(self, x: np.ndarray) -> np.ndarray:
+        add_noise_level = 0.05
+        mult_noise_level = 0.1
+        sparse_level = 0.02
+
+        add_term, mult_term = 0.0, 1.0
+
+        if add_noise_level > 0.0:
+            add_term = (
+                add_noise_level *
+                np.random.beta(2, 5) *
+                np.random.randn(*x.shape)
+            )
+            if sparse_level > 0.0:
+                mask = np.random.rand(*x.shape) < sparse_level
+                add_term[mask] = 0.0
+
+        if mult_noise_level > 0.0:
+            mult_term = (
+                1.0 +
+                mult_noise_level *
+                np.random.beta(2, 5) *
+                (2.0 * np.random.rand(*x.shape) - 1.0)
+            )
+            if sparse_level > 0.0:
+                mask = np.random.rand(*x.shape) < sparse_level
+                mult_term[mask] = 1.0
+
+        return mult_term * x + add_term
